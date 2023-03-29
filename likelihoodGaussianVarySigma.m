@@ -13,7 +13,7 @@ sigma = theta(end-Ny+1:end);
 if any( isnan(y) )
     loglike = -Inf;
 else
-    loglike = sum( -log(sigma) - 0.5 * log( 2 * pi ) - 0.5 * (y - y_obs).^2 ./ sigma.^2, 'all' );
+    loglike = sum( -log(sigma) - 0.5 * log( 2 * pi ) ) - 0.5 * sum( (y - y_obs).^2 ./ sigma.^2, 'all' );
 end
 
 end

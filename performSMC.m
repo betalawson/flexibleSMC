@@ -114,7 +114,7 @@ while T < 1
     %%% SET UP JUMPING DISTRIBUTION
     
     % Use the constructor function for the jumping distribution
-    J = constructJumpingDistribution( particles, prior, target_data, T_new, options );
+    J = constructJumpingDistribution( particles, prior, options );
     
     
     
