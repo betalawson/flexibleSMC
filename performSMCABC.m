@@ -103,10 +103,8 @@ Nkeep = floor( Nparts * options.alpha );
 % According to user options, create the list of which particles to mutate
 if options.mutateAll
     mutate_range = 1:Nparts;
-    Nmutate = Nparts;
 else
     mutate_range = Nkeep+1:Nparts;
-    Nmutate = Nparts-Nkeep;
 end
 
 % Initialise diagnostic storage
