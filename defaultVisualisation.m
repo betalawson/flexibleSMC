@@ -18,11 +18,11 @@ end
 %%% PARAMETER MARGINALS
 
 % Create figure for parameter marginals if it doesn't exist
-figBivariate = findobj('type','Figure','Name','Parameter Marginals');
-if isempty(figBivariate)
+figObj = findobj('type','Figure','Name','Parameter Marginals');
+if isempty(figObj)
     figure('units','Normalized','OuterPosition',[0 0 1 1], 'Name', 'Parameter Marginals');
 else
-    figure(figBivariate);
+    figure(figObj);
 end
 
 % Clear the figure's current data
@@ -45,30 +45,47 @@ end
 
 %%% PARAMETER BIVARIATE SCATTERS
 
+% Figure setup
+N_subfigs_per_fig = 24;
+Nsubfigs = Nthetas * (Nthetas - 1) / 2;
+Ncols = ceil( sqrt(2.5*min(Nsubfigs,N_subfigs_per_fig)) );
+Nrows = ceil( min(Nsubfigs,N_subfigs_per_fig) / Ncols );
+Nfigs = ceil(Nsubfigs / N_subfigs_per_fig);
+
 % Create figure for parameter bivariate plots if it doesn't exist
-figBivariate = findobj('type','Figure','Name','Bivariate Scatters');
-if isempty(figBivariate)
-    figure('units','Normalized','OuterPosition',[0 0 1 1], 'Name', 'Bivariate Scatters');
-else
-    figure(figBivariate);
+for k = 1:Nfigs
+    figObj = findobj('type','Figure','Name',['Bivariate Scatters ',num2str(k)]);
+    if isempty(figObj)
+        figs{k} = figure('units','Normalized','OuterPosition',[0 0 1 1], 'Name', ['Bivariate Scatters ',num2str(k)]);
+    else
+        figs{k} = figObj;
+    end
 end
 
-% Clear the figure's current data
-clf;
-
-% Figure setup
-Nfigs = Nthetas * (Nthetas - 1) / 2;
-Ncols = ceil( sqrt(2.5*Nfigs) );
-Nrows = ceil( Nfigs / Ncols );
-ax = createAxes( Nfigs, Nrows, Ncols, [], true );
-
-% Loop over all parameter combinations
+% Initialise loop variables
 c = 0;
+cur_fig = 1;
+% Move to current figure and clear it, then prepare axes
+figure(figs{1});
+clf;
+ax = createAxes( Nsubfigs, Nrows, Ncols, [], true );
+
+% Loop over parameter combinations
 for i = 1:Nthetas-1
     for j = i+1:Nthetas
 
         % Increment counter
         c = c + 1;
+        
+        % Move to new figure if counter exceeds limit
+        if c > N_subfigs_per_fig
+            c = 1;
+            cur_fig = cur_fig + 1;
+            figure(figs{cur_fig});
+            clf;
+            ax = createAxes( Nsubfigs, Nrows, Ncols, [], true );
+        end
+        
         % Plot scatter
         plot(ax{c}, thetas(:,i), thetas(:,j), 'k.', 'MarkerSize', 15 );
         xlabel(ax{c}, theta_names{i}, 'FontSize', 16);

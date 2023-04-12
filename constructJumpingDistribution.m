@@ -13,8 +13,10 @@ switch lower(options.jumpType)
         % Multivariate random normal jumps
         case {'mvn','normal'}
             
+            % Prepare jump covariance
+            C = 2.38^2 / size(part_thetas,2) * cov(part_thetas);
             % Multivariate normal random jumps, informed by particle covariance
-            J.sample = @(theta, ~) mvnrnd( theta, 2.38^2 / size(part_thetas,2) * cov(part_thetas) );
+            J.sample = @(theta, ~) mvnrnd( theta, C );
             % Jumping distribution is symmetric so logpdf not needed
             J.symmetric = true;
             

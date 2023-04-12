@@ -39,6 +39,6 @@ options = struct('jumpType', 'MVN', 'Nparts', 1000, 'Nsigmas', Nsigmas, 'alpha',
 [particles, diagnostics] = performSMC( f_model, prior, f_loglikelihood, target_data, options );
 
 % Save the results
-save(['test_output','.mat'], 'particles', 'diagnostics');
+save(['test_output','.mat'], 'particles', 'diagnostics', 'target_data');
 
 end
