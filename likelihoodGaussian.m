@@ -5,11 +5,12 @@ function loglike = likelihoodGaussian( y, y_obs, sigma )
 % a single value.
 
 % Log likelihood is found by summing the term contributed by each
-% individual datapoint
+% individual datapoint. If any model predictions are invalid, reject
+% sample. However, NaN's in the data are allowed (and ignored)
 if any( isnan(y) )
     loglike = -Inf;
-else
-    loglike = sum( -log(sigma) - 0.5 * log( 2 * pi ) ) - 0.5 * sum( (y - y_obs).^2 ./ sigma.^2, 'all' );
+else    
+    loglike = sum( -log(sigma) - 0.5*log(2*pi) - (y - y_obs).^2 ./ sigma.^2, [1 2], 'omitnan' );
 end
 
 end

@@ -6,14 +6,14 @@ function loglike = likelihoodGaussianVarySigma( y, y_obs, theta )
 % Final elements of theta are the standard deviations of error term
 % associated with each individual component of y.
 Ny = size(y,1);
-sigma = theta(end-Ny+1:end);
+sigma = theta(end-Ny+1:end)';
 
 % Log likelihood is found by summing the term contributed by each
 % individual datapoint
-if any( isnan(y) )
+if any( isnan(y), 'all' )
     loglike = -Inf;
 else
-    loglike = sum( -log(sigma) - 0.5 * log( 2 * pi ) ) - 0.5 * sum( (y - y_obs).^2 ./ sigma.^2, 'all' );
+    loglike = sum( -log(sigma) - 0.5*log(2*pi) - (y - y_obs).^2 ./ sigma.^2, [1 2], 'omitnan' );
 end
 
 end
