@@ -36,9 +36,9 @@ f_loglikelihood = @(y, theta) likelihoodGaussianVarySigma(y, target_data, theta)
 % Define options
 options = struct('jumpType', 'MVN', 'Nparts', 1000, 'Nsigmas', Nsigmas, 'alpha', 0.75);
 % Call performSMC function
-[particles, diagnostics] = performSMC( f_model, prior, f_loglikelihood, target_data, options );
+[particles, logevidence, options, diagnostics] = performSMC( f_model, prior, f_loglikelihood, options );
 
 % Save the results
-save(['test_output','.mat'], 'particles', 'diagnostics', 'target_data');
+save(['test_output','.mat'], 'particles', 'logevidence', 'prior', 'target_data', 'f_model', 'f_loglikelihood', 'options', 'diagnostics');
 
 end

@@ -1,4 +1,4 @@
-function [particles, diagnostics] = performSMC( f_model, prior, f_loglikelihood, target_data, input_options )
+function [particles, logevidence, options, diagnostics] = performSMC( f_model, prior, f_loglikelihood, input_options )
 % This function performs SMC-based inference on a supplied model, with
 % user-specified functions for the prior and the likelihood. Matching to
 % specific target data should be baked into the likelihood function - see
@@ -78,6 +78,9 @@ end
 % Initialise temperature at zero
 T = 0;
 
+% Initialise log-evidence estimate
+logevidence = 0;
+
 % Increment temperature until the posterior (T = 1) is being sampled from
 while T < 1
     
@@ -102,6 +105,12 @@ while T < 1
     % Calculate particle weights using the temperature found
     part_ws = weightParticles( part_loglikes, T_new - T );
     
+    % Use un-normalised particle weights to update log-evidence estimate
+    logevidence = logevidence + log( sum(part_ws) );
+    
+    % Now normalise the particles
+    part_ws = part_ws / sum(part_ws);
+    
     
     %%% RESAMPLE PARTICLES
     
@@ -115,7 +124,6 @@ while T < 1
     
     % Use the constructor function for the jumping distribution
     J = constructJumpingDistribution( particles, prior, options );
-    
     
     
     %%% MUTATE (MOVE) PARTICLES

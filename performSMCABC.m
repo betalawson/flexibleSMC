@@ -1,4 +1,4 @@
-function [particles, diagnostics] = performSMCABC( f_model, f_summaries, S_target, prior, input_options )
+function [particles, options, diagnostics] = performSMCABC( f_model, f_summaries, S_target, prior, input_options )
 % This function performs SMC-ABC-based inference on a supplied model, with
 % the user also providing a function that generates summary statistics.
 % specific target data should be baked into the likelihood function - see

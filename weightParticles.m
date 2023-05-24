@@ -11,7 +11,4 @@ w = w - max(w);
 % Weights based on actual likelihood
 w = exp(w);
 
-% Normalise weights so they sum to one
-w = w / sum(w);
-
 end

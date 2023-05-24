@@ -1,5 +1,10 @@
 function EXAMPLE_ABC
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% THIS FILE IS NOT COMPLETE %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 
 %%% Initial specifications
 
@@ -12,7 +17,7 @@ f_model = @(theta) modelCRN(theta);
 %%% Generate some synthetic data
 
 % Specify the true parameter values
-theta_true = [ones(1,11)];
+theta_true = ones(1,11);
 % Specify the noise level
 sigma = 2;
 
@@ -33,9 +38,9 @@ f_loglikelihood = @(y, theta) likelihoodGaussianVarySigma(y, target_data, theta)
 % Define options
 options = struct('jumpType', 'IND', 'Nparts', 500);
 % Call performSMC function
-[particles, diagnostics] = performSMC( f_model, prior, f_loglikelihood, options );
+[particles, options, diagnostics] = performSMCABC( f_model, prior, f_loglikelihood, options );
 
 % Save the results
-save(['test_output','.mat'], 'particles', 'diagnostics');
+save(['test_output','.mat'], 'particles', 'diagnostics', 'f_model', 'f_loglikelihood', 'options');
 
 end
