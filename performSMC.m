@@ -102,14 +102,11 @@ while T < 1
         T_new = bisectionSolve( ESS_func, [T+eps 1] );
     end
     
+    % Use un-normalised particle weights to update log-evidence estimate
+    logevidence = logevidence + log(sum( part_loglikes.^(T_new-T) ));
+    
     % Calculate particle weights using the temperature found
     part_ws = weightParticles( part_loglikes, T_new - T );
-    
-    % Use un-normalised particle weights to update log-evidence estimate
-    logevidence = logevidence + log( sum(part_ws) );
-    
-    % Now normalise the particles
-    part_ws = part_ws / sum(part_ws);
     
     
     %%% RESAMPLE PARTICLES
@@ -135,7 +132,7 @@ while T < 1
     % used to calculate how many MCMC steps will be taken     
     accept_rates = zeros(1,R_min);
     for k = 1:R_min
-        for m = 1:Nparts
+        parfor m = 1:Nparts
             [ particles{m}, accepted(m), move_runs(m) ] = mutateParticle( particles{m}, J, T_new );
         end
         accept_rates(k) = mean(accepted);
@@ -155,7 +152,7 @@ while T < 1
     
     % Perform the remaining steps as suggested by recommended stepcount R
     for k = 1:R_add
-        for m = 1:Nparts
+        parfor m = 1:Nparts
             [ particles{m}, accepted(m), move_runs(m) ] = mutateParticle( particles{m}, J, T_new );
         end
         accept_rates(k) = mean(accepted);
