@@ -102,8 +102,18 @@ while T < 1
         T_new = bisectionSolve( ESS_func, [T+eps 1] );
     end
     
-    % Use un-normalised particle weights to update log-evidence estimate
-    logevidence = logevidence + log(sum( part_loglikes.^(T_new-T) ));
+    
+    %%% EVIDENCE ESTIMATE
+    
+    % Get log weights
+    logw = (T_new - T) * part_loglikes;
+    % Shift log-weights to make largest 0
+    max_logw = max(logw);
+    logw = logw - max_logw;
+    % Add current step's contribution to log-evidence
+    logevidence = logevidence + log( sum( exp(logw) ) ) + max_logw -  log(Nparts);
+      
+    %logevidence = logevidence + log( (1/Nparts) * sum( part_loglikes.^(T_new-T) ) );
     
     % Calculate particle weights using the temperature found
     part_ws = weightParticles( part_loglikes, T_new - T );
