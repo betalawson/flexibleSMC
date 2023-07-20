@@ -3,6 +3,13 @@ function [particles, logevidence, options, diagnostics] = performSMC( f_model, p
 % user-specified functions for the prior and the likelihood. Matching to
 % specific target data should be baked into the likelihood function - see
 % the attached example for this procedure in action.
+%
+% The "prior" object should either be a distribution, provided as a struct
+% that has a sample() function and a logpdf(theta) function, or a struct 
+% that consists of a set of already-generated samples (field 'samples') and
+% a logpdf(theta) function. This alternative functionality can help when
+% using some intermediary distribution, with samples already generated, as
+% 'prior' (for example, the posterior generated using a previous dataset)
 
 
 
@@ -15,45 +22,56 @@ for k = 1:length(provided_options)
     options.(provided_options{k}) = input_options.(provided_options{k});
 end
 
-% Read out number of particles
-Nparts = options.Nparts;
 
-
-
-%%% Create the initial particles
-parfor k = 1:Nparts
-   
-    % Loop until a suitable particle is found
-    particle_found = false;
-    prior_runs(k) = 0;
-    while ~particle_found
+%%% Generate the initial particles if they weren't already provided
+if ~isfield(prior,'samples')
     
-        % Sample from the prior
-        prop_theta = prior.sample();
+    % Read out the number of particles
+    Nparts = options.Nparts;
     
-        % Simulate the model here
-        prop_y = f_model( prop_theta );
-        prior_runs(k) = prior_runs(k) + 1;
-    
-        % Evaluate the likelihood of this particle 
-        prop_loglike = f_loglikelihood( prop_y, prop_theta ); 
-    
-        % Only accept profiles with nonzero likelihood
-        if prop_loglike > -Inf
-            particle_found = true;
-            particles{k} = struct('theta', prop_theta, 'y', prop_y, 'logprior', prior.logpdf( prop_theta ), 'loglike', prop_loglike);
+    parfor k = 1:Nparts
+        
+        % Loop until a suitable particle is found
+        particle_found = false;
+        prior_runs(k) = 0;
+        while ~particle_found
+            
+            % Sample from the prior
+            prop_theta = prior.sample();
+            
+            % Simulate the model here
+            prop_y = f_model( prop_theta );
+            prior_runs(k) = prior_runs(k) + 1;
+            
+            % Evaluate the likelihood of this particle
+            prop_loglike = f_loglikelihood( prop_y, prop_theta );
+            
+            % Only accept profiles with nonzero likelihood
+            if prop_loglike > -Inf
+                particle_found = true;
+                particles{k} = struct('theta', prop_theta, 'y', prop_y, 'logprior', prior.logpdf( prop_theta ), 'loglike', prop_loglike);
+            end
+            
         end
         
     end
     
+    % Store total runs used to generate the particles, output if verbose
+    model_runs = sum(prior_runs);
+    if options.verbose
+        fprintf('Prior was successfully sampled, with %g%% of prior samples accepted\n', Nparts / model_runs * 100 );
+    end
+    
+else
+    
+    particles = prior.samples;
+    if length(particles) ~= options.Nparts
+        warning('The number of prior samples does not match the current options for number of particles. The number of prior samples will be used as the number of particles.');
+    end
+    Nparts = length(particles);
+    model_runs = 0;
+    
 end
-
-% Store total runs used to generate the particles, output if verbose
-model_runs = sum(prior_runs);
-if options.verbose
-    fprintf('Prior was successfully sampled, with %g%% of prior samples accepted\n', Nparts / model_runs * 100 );
-end
-
 
 
 %%% Basic Setup
@@ -112,7 +130,7 @@ while T < 1
     logw = logw - max_logw;
     % Add current step's contribution to log-evidence
     logevidence = logevidence + log( sum( exp(logw) ) ) + max_logw -  log(Nparts);
-      
+    
     %logevidence = logevidence + log( (1/Nparts) * sum( part_loglikes.^(T_new-T) ) );
     
     % Calculate particle weights using the temperature found
@@ -130,7 +148,7 @@ while T < 1
     %%% SET UP JUMPING DISTRIBUTION
     
     % Use the constructor function for the jumping distribution
-    J = constructJumpingDistribution( particles, prior, options );
+    J = constructJumpingDistribution( particles, prior, options.jumpType );
     
     
     %%% MUTATE (MOVE) PARTICLES
@@ -139,7 +157,7 @@ while T < 1
     R_min = options.minMCMCsteps;
     
     % Perform an initial number of MCMC steps to estimate acceptance rate,
-    % used to calculate how many MCMC steps will be taken     
+    % used to calculate how many MCMC steps will be taken
     accept_rates = zeros(1,R_min);
     for k = 1:R_min
         parfor m = 1:Nparts
@@ -167,7 +185,7 @@ while T < 1
         end
         accept_rates(k) = mean(accepted);
     end
-    model_runs = model_runs + sum( move_runs );  
+    model_runs = model_runs + sum( move_runs );
     
     
     %%% UPDATE TEMPERATURE AND DIAGNOSTICS
@@ -195,4 +213,4 @@ end
 % Save diagnostic information
 diagnostics.model_runs = model_runs;
 diagnostics.acceptance_rates = acceptance_rates;
-diagnostics.overall_acceptance_rate = mean(acceptance_rates);       
+diagnostics.overall_acceptance_rate = mean(acceptance_rates);

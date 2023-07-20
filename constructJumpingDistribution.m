@@ -1,4 +1,4 @@
-function J = constructJumpingDistribution( particles, prior, options )
+function J = constructJumpingDistribution( particles, prior, jumpType )
 % This function constructs a jumping distribution of the requested type.
 % The current particle locations, and the prior, are used.
 
@@ -7,7 +7,7 @@ function J = constructJumpingDistribution( particles, prior, options )
 part_thetas = getProperty( particles, 'theta' );
 
 % Construct requested distribution
-switch lower(options.jumpType)
+switch lower(jumpType)
        
         
         % Multivariate random normal jumps
