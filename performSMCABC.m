@@ -156,10 +156,11 @@ while looping
     % used to calculate how many MCMC steps will be taken     
     accept_rates = zeros(1,R_min);
     for k = 1:R_min
+        accepted = zeros(1,Nparts);
         for m = mutate_range
             [ particles{m}, accepted(m), move_runs(m) ] = mutateParticle( particles{m}, J, D_threshold );
         end
-        accept_rates(k) = mean(accepted);
+        accept_rates(k) = mean(accepted(mutate_range));
     end
     model_runs = model_runs + sum( move_runs );
     
