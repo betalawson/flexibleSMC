@@ -157,12 +157,13 @@ while looping
     accept_rates = zeros(1,R_min);
     for k = 1:R_min
         accepted = zeros(1,Nparts);
-        for m = mutate_range
+        move_runs = zeros(1,Nparts);
+        parfor m = mutate_range
             [ particles{m}, accepted(m), move_runs(m) ] = mutateParticle( particles{m}, J, D_threshold );
         end
         accept_rates(k) = mean(accepted(mutate_range));
+        model_runs = model_runs + sum( move_runs );
     end
-    model_runs = model_runs + sum( move_runs );
     
     % Estimated acceptance rate is the mean across all particles
     est_acc_rate = mean( accept_rates );
@@ -177,12 +178,13 @@ while looping
     
     % Perform the remaining steps as suggested by recommended stepcount R
     for k = 1:R_add
-        for m = mutate_range
+        move_runs = zeros(1,Nparts);
+        parfor m = mutate_range
             [ particles{m}, accepted(m), move_runs(m) ] = mutateParticle( particles{m}, J, D_threshold );
         end
         accept_rates(k) = mean(accepted);
+        model_runs = model_runs + sum( move_runs );  
     end
-    model_runs = model_runs + sum( move_runs );  
     
     
     %%% UPDATE DIAGNOSTICS
