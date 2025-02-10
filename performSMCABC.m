@@ -21,7 +21,7 @@ Nparts = options.Nparts;
 
 
 %%% Create the initial particles
-for k = 1:Nparts
+parfor k = 1:Nparts
    
     % Loop until a suitable particle is found
     particle_found = false;
