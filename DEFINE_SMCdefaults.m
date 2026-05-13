@@ -9,6 +9,12 @@ options.maxMCMCsteps = 100;             % Maximum number of MCMC steps
 options.jumpType = 'MVN';               % Type of jumping distribution to use
 options.meanFlip = 2;                   % Maximum number of bits to flip for binary updates
 
+options.resampleMethod = 'residual';     % The method to use for resmapling within the SMC algorithm
+                                         %  'residual' - auto-assigns the guaranteed integer part of w x N to all particles, uses stratified sampling on the remainder
+                                         %  'residual-multinomial' - auto-assigns the guaranteed integer part of w x N to all particles, uses multinomial sampling on the remainder
+                                         %  'stratified' - uses stratified resampling, where one sample is assigned somewhere within "bins" along the weight CDF
+                                         %  'multinomial' - uses pure multinomial sampling according to weights to resample
+
 %%%%% SMC-ABC specific %%%%%
 options.discrepancy = 'mahalanobis';    % Discrepancy function - may provide a function @(S) that returns the discrepancy for a set of summary statistics, or may specify 'euclid', 'weighted', 'mahalanobis', 'SSnonans'
 options.mutateAll = 'true';             % Specifies whether all particles will have their positions updated by the mutation step (used in SMC-ABC)

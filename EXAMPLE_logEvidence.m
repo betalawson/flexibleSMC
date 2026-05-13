@@ -1,4 +1,4 @@
-function EXAMPLE_logEvidence
+function [log_Z,logevidence] = EXAMPLE_logEvidence
 % This function demonstrates and validates the use of the SMC routine as a
 % means of measuring the log-evidence (logarithm of the posterior
 % normalising constant)
@@ -6,13 +6,13 @@ function EXAMPLE_logEvidence
 
 %%% Create a test problem consisting of a product of two random Gaussians
 
-% Create first random Gaussian
-mu0 = 5 * randn(1,3);
-L = 2 * [randn, 0, 0; randn, randn, 0; randn, randn, randn];
+% Create first Gaussian
+mu0 = [2,3,-3];
+L = [1, 0, 0; 0.4, 0.5, 0; 0.3, 1.5, 2.5];
 SIGMA0 = L * L';
-% Create second random Gaussian
-mu1 = 5 * randn(1,3);
-L = 2 * [randn, 0, 0; randn, randn, 0; randn, randn, randn];
+% Create second Gaussian
+mu1 = [-1,3,4];
+L = [1.5, 0, 0; 0.4, 0.5, 0; 0.3, 0.5, 0.8];
 SIGMA1 = L * L';
 
 % Form a posterior that is the product of two Gaussians by assigning one as
@@ -32,7 +32,7 @@ f_loglikelihood = @(y,dummy) like_dist.logpdf(y);
 %%% Run the SMC
 
 % Define options
-options = struct('jumpType', 'MVN', 'Nparts', 10000, 'alpha', 0.75);
+options = struct('jumpType', 'MVN', 'Nparts', 500, 'alpha', 0.75, 'visualise', false, 'verbose', false);
 % Call performSMC function
 [particles, logevidence, options, diagnostics] = performSMC( f_model, prior, f_loglikelihood, options );
 

@@ -140,7 +140,8 @@ while T < 1
     %%% RESAMPLE PARTICLES
     
     % Weighted resampling using particles' loglike-derived weights
-    r = randsample(1:Nparts, Nparts, true, part_ws);
+    r = generateResampleIndices(part_ws, options.resampleMethod);
+        
     % Copy particles using the weighted resampling
     particles = particles(r);
     
